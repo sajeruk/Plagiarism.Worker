@@ -12,7 +12,6 @@ namespace Plagiarism.Worker.ApiMode
         public string Endpoint;
         // Request timeout in seconds
         public int RequestTimeout;
-        public string GetApiMethod;
-        public string PutApiMethod;
+        public string Token;
     }
 }

@@ -18,10 +18,16 @@ namespace Plagiarism.Worker.ApiMode
         public bool GetJob(ref Job job)
         {
             var task = Comm.GetUnjudgedSolutionInfo();
-            task.Wait();
-            Logger.Info("Recieved line: {0}", task.Result);
+            try
+            {
+                task.Wait();
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error waiting task: {0}", e.Message);
+                return false;
+            }
             job = JsonConvert.DeserializeObject<Job>(task.Result);
-
             return task.Result.Length > 0;
         }
     }

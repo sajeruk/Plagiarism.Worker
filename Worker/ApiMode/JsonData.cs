@@ -25,14 +25,20 @@ namespace Plagiarism.Worker.ApiMode
 
     public class ComparasionResult
     {
+        [JsonProperty(PropertyName = "id")]
         public int SolutionId { get; set; }
+        [JsonProperty(PropertyName = "result")]
         public AlgorithmAggregatedResult TestResult { get; set; }
     }
 
     public class JobTestResult
     {
+        [JsonProperty(PropertyName = "id")]
         public int SolutionId { get; set; }
+        [JsonProperty(PropertyName = "comparasion")]
         public ComparasionResult[] OtherSolutions { get; set; }
+        [JsonProperty(PropertyName = "plagiarism_level")]
+        public double PlagiarismLevel { get; set; }
 
     }
 }

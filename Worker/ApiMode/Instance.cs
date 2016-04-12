@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -19,7 +20,7 @@ namespace Plagiarism.Worker.ApiMode
         {
             Sleeper = new ConstantSleeper(config.ApiModeConfiguration.RequestTimeout);
             Logger.Info("Creating HttpClient, endpoint {0}...", config.ApiModeConfiguration.Endpoint);
-            Comm = new HttpApiCommunicator(CreateHttpClient(config.ApiModeConfiguration.Endpoint));
+            Comm = new HttpApiCommunicator(CreateHttpClient(config.ApiModeConfiguration.Endpoint, config.ApiModeConfiguration.Token));
             Fetcher = new JobFetcher(Comm);
             PlagiarismChecker = new PlagiarismTester(config);
         }
@@ -41,21 +42,22 @@ namespace Plagiarism.Worker.ApiMode
                     throw new NullReferenceException("GetJob returned null job");
                 }
 
-                RunTestMachineDebug(job);
-                JobTestResult result = new JobTestResult();
-                result.SolutionId = job.SolutionToJudge.SolutionId;
-                result.OtherSolutions = new ComparasionResult[job.SolutionsToCompare.Length];
+                var json = RunTestMachine(job);                
+                Comm.PutReport(json);
+
                 Sleeper.Sleep();
             }
         }
 
-        private HttpClient CreateHttpClient(string endpoint)
+        private HttpClient CreateHttpClient(string endpoint, string token)
         {
             var client = new HttpClient();
             client.BaseAddress = new Uri(endpoint);
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
+            client.DefaultRequestHeaders.Add("Worker-Token", token);
+            client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest"); // To force django return error pages in plain text instead of HTML
             return client;
         }
 
@@ -66,17 +68,27 @@ namespace Plagiarism.Worker.ApiMode
             return task.Result;
         }
 
-        private void RunTestMachineDebug(Job job)
+        private string RunTestMachine(Job job)
         {
+        
             var src1 = LoadSource(job.SolutionToJudge.SolutionHash);
+            var comparasions = new List<ComparasionResult>();
+            double plagiarismLevel = 0.0;
+
+            Stopwatch sw = Stopwatch.StartNew();
             foreach (var soluition in job.SolutionsToCompare)
             {
+                Logger.Debug("Testing {0} and {1}", job.SolutionToJudge.SolutionId, soluition.SolutionId);
                 var src2 = LoadSource(soluition.SolutionHash);
                 var checkerResult = PlagiarismChecker.Check(src1, src2);
-                string serialized = JsonConvert.SerializeObject(checkerResult);
-                Logger.Info("Comparing solutions {0} and {1}: {2}", job.SolutionToJudge.SolutionId, soluition.SolutionId, serialized);
-                
+                comparasions.Add(new ComparasionResult { SolutionId = soluition.SolutionId, TestResult = checkerResult });
+                plagiarismLevel = Math.Max(plagiarismLevel, checkerResult.AggregationInfo.Similarity);
             }
+            sw.Stop();
+            Logger.Info("Tested {0} soluitons in: {1} ms", job.SolutionsToCompare.Length, sw.ElapsedMilliseconds);
+
+            return JsonConvert.SerializeObject(new JobTestResult{
+                SolutionId = job.SolutionToJudge.SolutionId, OtherSolutions = comparasions.ToArray(), PlagiarismLevel = plagiarismLevel });
         }
     }
 }
