@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Plagiarism.Worker.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,8 +43,11 @@ namespace Plagiarism.Worker.ApiMode
                     throw new NullReferenceException("GetJob returned null job");
                 }
 
-                var json = RunTestMachine(job);                
-                Comm.PutReport(json);
+                string json = null;
+                if (RunTestMachine(job, ref json))
+                {
+                    Comm.PutReport(json);
+                }
 
                 Sleeper.Sleep();
             }
@@ -64,14 +68,26 @@ namespace Plagiarism.Worker.ApiMode
         private string LoadSource(string id)
         {
             var task = Comm.DownloadFile(id);
-            task.Wait();
-            return task.Result;
+            try
+            {
+                task.Wait();
+                return task.Result;
+            }
+            catch (AggregateException e)
+            {
+                Logger.Error("Error loading file: {0}, Exception: {1}, retry", id, e.Message);
+                return null;
+            }
+            
         }
 
-        private string RunTestMachine(Job job)
+        private bool RunTestMachine(Job job, ref string result)
         {
-        
-            var src1 = LoadSource(job.SolutionToJudge.SolutionHash);
+            string src1 = LoadSource(job.SolutionToJudge.SolutionHash);
+            if (src1 == null)
+            {
+                return false;
+            }
             var comparasions = new List<ComparasionResult>();
             double plagiarismLevel = 0.0;
 
@@ -80,6 +96,10 @@ namespace Plagiarism.Worker.ApiMode
             {
                 Logger.Debug("Testing {0} and {1}", job.SolutionToJudge.SolutionId, soluition.SolutionId);
                 var src2 = LoadSource(soluition.SolutionHash);
+                if (src2 == null)
+                {
+                    return false;
+                }
                 var checkerResult = PlagiarismChecker.Check(src1, src2);
                 comparasions.Add(new ComparasionResult { SolutionId = soluition.SolutionId, TestResult = checkerResult });
                 plagiarismLevel = Math.Max(plagiarismLevel, checkerResult.AggregationInfo.Similarity);
@@ -87,8 +107,9 @@ namespace Plagiarism.Worker.ApiMode
             sw.Stop();
             Logger.Info("Tested {0} soluitons in: {1} ms", job.SolutionsToCompare.Length, sw.ElapsedMilliseconds);
 
-            return JsonConvert.SerializeObject(new JobTestResult{
+            result = JsonConvert.SerializeObject(new JobTestResult{
                 SolutionId = job.SolutionToJudge.SolutionId, OtherSolutions = comparasions.ToArray(), PlagiarismLevel = plagiarismLevel });
+            return true;
         }
     }
 }
