@@ -19,7 +19,7 @@ namespace Plagiarism.Worker.Util
 
         private IntPtr HModule;
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate string CompareSource(string source1, string source2);
+        private delegate IntPtr CompareSource(string source1, string source2);
         private CompareSource Method;
 
         public LibraryLoader(string dllName)
@@ -47,7 +47,8 @@ namespace Plagiarism.Worker.Util
 
         public string Call(string source1, string source2)
         {
-            return Method.Invoke(source1, source2);
+            IntPtr ptr = Method.Invoke(source1, source2);
+            return Marshal.PtrToStringAnsi(ptr);
         }
     }
 }
