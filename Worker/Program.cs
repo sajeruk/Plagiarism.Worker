@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
@@ -15,6 +16,7 @@ namespace Plagiarism.Worker
         /// </summary>
         static int Main(string[] args)
         {
+            SetLowPriority();
             bool runAsService = !Environment.UserInteractive;
             string workingDir = runAsService ? AppDomain.CurrentDomain.BaseDirectory : Directory.GetCurrentDirectory();
             var service = new WorkerService(workingDir);
@@ -31,6 +33,14 @@ namespace Plagiarism.Worker
                 Console.WriteLine("Running Plagiarism service as console app...");
                 service.RunAsConsoleApp(args);
                 return service.ExitCode;
+            }
+        }
+
+        private static void SetLowPriority()
+        {
+            using (Process p = Process.GetCurrentProcess())
+            {
+                p.PriorityClass = ProcessPriorityClass.BelowNormal;
             }
         }
     }
