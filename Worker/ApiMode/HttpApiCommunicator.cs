@@ -21,10 +21,25 @@ namespace Plagiarism.Worker.ApiMode
             return Client.GetStringAsync(path);
         }
 
-        public Task<byte[]> DownloadFile(string id)
+        private Task<byte[]> DownloadFileImpl(string id)
         {
             string path = "api/fs/" + id;
             return Client.GetByteArrayAsync(path);
+        }
+
+        public byte[] DownloadFile(string id)
+        {
+            var task = DownloadFileImpl(id);
+            try
+            {
+                task.Wait();
+                return task.Result;
+            }
+            catch (AggregateException e)
+            {
+                Logger.Error("Error loading file: {0}, Exception: {1}, retry", id, e.Message);
+                return null;
+            }
         }
 
         public void PutReport(string json)

@@ -16,6 +16,7 @@ namespace Plagiarism.Worker.ApiMode
         private JobFetcher Fetcher;
         private HttpApiCommunicator Comm;
         PlagiarismTester PlagiarismChecker;
+        LruCache<string, Source> Cache;
 
         public Instance(Configuration config) : base(config)
         {
@@ -24,6 +25,7 @@ namespace Plagiarism.Worker.ApiMode
             Comm = new HttpApiCommunicator(CreateHttpClient(config.ApiModeConfiguration.Endpoint, config.ApiModeConfiguration.Token));
             Fetcher = new JobFetcher(Comm);
             PlagiarismChecker = new PlagiarismTester(config);
+            Cache = new LruCache<string, Source>(10000);
         }
 
         protected override void DoRun(CancellationToken token)
@@ -67,18 +69,17 @@ namespace Plagiarism.Worker.ApiMode
 
         private Source LoadSource(string id)
         {
-            var task = Comm.DownloadFile(id);
-            try
+            Source result = Cache.Get(id);
+            if (result == null)
             {
-                task.Wait();
-                return new Source(task.Result);
+                byte[] content = Comm.DownloadFile(id);
+                if (content != null)
+                {
+                    result = new Source(content);
+                    Cache.Add(id, result);
+                }
             }
-            catch (AggregateException e)
-            {
-                Logger.Error("Error loading file: {0}, Exception: {1}, retry", id, e.Message);
-                return null;
-            }
-            
+            return result;
         }
 
         private bool RunTestMachine(Job job, ref string result)
