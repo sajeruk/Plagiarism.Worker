@@ -21,10 +21,10 @@ namespace Plagiarism.Worker.ApiMode
             return Client.GetStringAsync(path);
         }
 
-        public Task<string> DownloadFile(string id)
+        public Task<byte[]> DownloadFile(string id)
         {
             string path = "api/fs/" + id;
-            return Client.GetStringAsync(path);
+            return Client.GetByteArrayAsync(path);
         }
 
         public void PutReport(string json)

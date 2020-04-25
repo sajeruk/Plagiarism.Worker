@@ -29,7 +29,7 @@ namespace Plagiarism.Worker.Algorithms
 
         public override KeyValuePair<double, string> CompareSrc(Source source1, Source source2)
         {
-            var res = Loader.Call(source1.Content, source2.Content);
+            var res = Loader.Call(source1.GetRawBytesNullTerminated(), source2.GetRawBytesNullTerminated());
             int idx = res.IndexOf(' ');
             
             return new KeyValuePair<double, string>(res.Substring(0, idx).ParseAsDouble(), res.Substring(idx + 1).Trim());
