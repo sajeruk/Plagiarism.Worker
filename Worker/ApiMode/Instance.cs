@@ -65,13 +65,13 @@ namespace Plagiarism.Worker.ApiMode
             return client;
         }
 
-        private string LoadSource(string id)
+        private Source LoadSource(string id)
         {
             var task = Comm.DownloadFile(id);
             try
             {
                 task.Wait();
-                return task.Result;
+                return new Source(task.Result);
             }
             catch (AggregateException e)
             {
@@ -83,7 +83,7 @@ namespace Plagiarism.Worker.ApiMode
 
         private bool RunTestMachine(Job job, ref string result)
         {
-            string src1 = LoadSource(job.SolutionToJudge.SolutionHash);
+            Source src1 = LoadSource(job.SolutionToJudge.SolutionHash);
             if (src1 == null)
             {
                 return false;

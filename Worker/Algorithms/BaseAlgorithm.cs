@@ -18,6 +18,6 @@ namespace Plagiarism.Worker.Algorithms
         public string Name;
         public bool Enabled;
 
-        public abstract KeyValuePair<double, string> CompareSrc(string source1, string source2);
+        public abstract KeyValuePair<double, string> CompareSrc(Source source1, Source source2);
     }
 }

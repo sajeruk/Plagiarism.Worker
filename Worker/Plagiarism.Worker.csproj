@@ -97,6 +97,7 @@
     <Compile Include="SelfTestingMode\CustomConfiguration.cs" />
     <Compile Include="SelfTestingMode\Instance.cs" />
     <Compile Include="Sleeper.cs" />
+    <Compile Include="Source.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\LibraryLoader.cs" />
     <Compile Include="WorkerInstance.cs" />

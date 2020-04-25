@@ -33,7 +33,7 @@ namespace Plagiarism.Worker
             }
         }
 
-        public AlgorithmAggregatedResult Check(string source1, string source2)
+        public AlgorithmAggregatedResult Check(Source source1, Source source2)
         {
             var answer = new List<AlgorithmResult>();
             foreach (var algo in Algos)

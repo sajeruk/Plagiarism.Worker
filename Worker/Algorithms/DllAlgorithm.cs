@@ -27,9 +27,9 @@ namespace Plagiarism.Worker.Algorithms
             Loader = new LibraryLoader(dllName);
         }
 
-        public override KeyValuePair<double, string> CompareSrc(string source1, string source2)
+        public override KeyValuePair<double, string> CompareSrc(Source source1, Source source2)
         {
-            var res = Loader.Call(source1, source2);
+            var res = Loader.Call(source1.Content, source2.Content);
             int idx = res.IndexOf(' ');
             
             return new KeyValuePair<double, string>(res.Substring(0, idx).ParseAsDouble(), res.Substring(idx + 1).Trim());

@@ -8,6 +8,6 @@ namespace Plagiarism.Worker.Algorithms
 {
     public interface IAlgorithm
     {
-        KeyValuePair<double, string> CompareSrc(string source1, string source2);
+        KeyValuePair<double, string> CompareSrc(Source source1, Source source2);
     }
 }

@@ -7,7 +7,7 @@ namespace Plagiarism.Worker.Misc
 {
     class TestData
     {
-        public static readonly string Source1 = @"
+        public static readonly Source Source1 = new Source(@"
                 #include <stdio.h>
 
                 int main() {
@@ -20,8 +20,8 @@ namespace Plagiarism.Worker.Misc
 
                     return 0;
                 }
-            ";
-        public static readonly string Source2 = @"
+            ");
+        public static readonly Source Source2 = new Source(@"
                 #include <stdio.h>
 
                 int main() {
@@ -35,6 +35,6 @@ namespace Plagiarism.Worker.Misc
                     
                     return 0;
                 }
-            ";
+            ");
     }
 }
