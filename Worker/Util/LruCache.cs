@@ -16,6 +16,11 @@ namespace Plagiarism.Worker.Util
             Capacity = capacity;
         }
 
+        public int Size()
+        {
+            return CacheMap.Count;
+        }
+
         public V Get(K key)
         {
             LinkedListNode<LruCacheItem<K, V>> node;

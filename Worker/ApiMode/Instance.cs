@@ -107,6 +107,7 @@ namespace Plagiarism.Worker.ApiMode
             }
             sw.Stop();
             Logger.Info("Tested {0} soluitons in {1} ms; result = {2:0.00}", job.SolutionsToCompare.Length, sw.ElapsedMilliseconds, plagiarismLevel);
+            Logger.Debug("Cached solutions: {0}", Cache.Size());
 
             result = JsonConvert.SerializeObject(new JobTestResult{
                 SolutionId = job.SolutionToJudge.SolutionId, OtherSolutions = comparasions.ToArray(), PlagiarismLevel = plagiarismLevel });
