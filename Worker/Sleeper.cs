@@ -41,4 +41,35 @@ namespace Plagiarism.Worker
         {
         }
     }
+
+    class ProgressiveSleeper : ISleeper
+    {
+        private TimeSpan[] Timeouts;
+        int Pos;
+
+        public ProgressiveSleeper(int seconds)
+        {
+            Timeouts = new TimeSpan[] {
+                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(seconds)
+            };
+            Pos = 0;
+        }
+
+        public void Sleep()
+        {
+            TimeSpan ts = Timeouts[Pos];
+            Logger.Debug("Sleeping {0}...", ts.TotalSeconds);
+            Thread.Sleep(ts);
+            if (Pos + 1 < Timeouts.Length)
+            {
+                ++Pos;
+            }
+        }
+
+        public void Reset()
+        {
+            Pos = 0;
+        }
+    }
 }

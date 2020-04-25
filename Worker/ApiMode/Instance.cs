@@ -20,7 +20,7 @@ namespace Plagiarism.Worker.ApiMode
 
         public Instance(Configuration config) : base(config)
         {
-            Sleeper = new ConstantSleeper(config.ApiModeConfiguration.RequestTimeout);
+            Sleeper = new ProgressiveSleeper(config.ApiModeConfiguration.RequestTimeout);
             Logger.Info("Creating HttpClient, endpoint {0}...", config.ApiModeConfiguration.Endpoint);
             Comm = new HttpApiCommunicator(CreateHttpClient(config.ApiModeConfiguration.Endpoint, config.ApiModeConfiguration.Token));
             Fetcher = new JobFetcher(Comm);
@@ -49,8 +49,8 @@ namespace Plagiarism.Worker.ApiMode
                 if (RunTestMachine(job, ref json))
                 {
                     Comm.PutReport(json);
+                    Sleeper.Reset();
                 }
-
                 Sleeper.Sleep();
             }
         }
