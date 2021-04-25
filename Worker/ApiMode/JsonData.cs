@@ -13,6 +13,8 @@ namespace Plagiarism.Worker.ApiMode
         public int SolutionId { get; set; }
         [JsonProperty(PropertyName = "resourceId")]
         public string SolutionHash { get; set; }
+        [JsonProperty(PropertyName = "language")]
+        public string Language { get; set; }
     }
 
     public class Job

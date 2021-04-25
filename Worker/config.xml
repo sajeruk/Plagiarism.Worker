@@ -10,17 +10,24 @@
     <RequestTimeout>5</RequestTimeout>
   </ApiModeConfiguration>
   <Algorithms>
-    <Algorithm>
+    <DllAlgorithm>
       <Id>2</Id>
       <Name>algo2</Name>
       <Enabled>true</Enabled>
       <DllName>AntiChitDLL2.dll</DllName>
-    </Algorithm>
-    <Algorithm>
+    </DllAlgorithm>
+    <DllAlgorithm>
       <Id>3</Id>
       <Name>algo3</Name>
       <Enabled>true</Enabled>
       <DllName>AntiChitDLL3.dll</DllName>
-    </Algorithm>
+    </DllAlgorithm>
+    <HttpAlgorithm>
+      <Id>4</Id>
+      <Name>algo4</Name>
+      <Enabled>true</Enabled>
+      <Endpoint>http://192.168.1.6:7861</Endpoint>
+      <Token>abacaba</Token>
+    </HttpAlgorithm>
   </Algorithms>
 </Configuration>
