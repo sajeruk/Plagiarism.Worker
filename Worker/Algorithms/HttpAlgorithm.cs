@@ -101,12 +101,12 @@ namespace Plagiarism.Worker.Algorithms
             if (response == null)
             {
                 Logger.Error("Got empty response");
-                return new KeyValuePair<double, string>(0.0, "Empty response");
+                return new KeyValuePair<double, string>(0.5, "Empty response");
             }
             if (response.Result == null)
             {
                 Logger.Error("Got error: " + response.Message);
-                return new KeyValuePair<double, string>(0.0, "Error: " + response.Message);
+                return new KeyValuePair<double, string>(0.5, "Error: " + response.Message);
             }
             return new KeyValuePair<double, string>(response.Result.Score, response.Result.Message);
         }
