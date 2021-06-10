@@ -20,7 +20,7 @@ namespace Plagiarism.Worker.Misc
 
                     return 0;
                 }
-            ");
+            ", "cpp");
         public static readonly Source Source2 = new Source(@"
                 #include <stdio.h>
 
@@ -35,6 +35,6 @@ namespace Plagiarism.Worker.Misc
                     
                     return 0;
                 }
-            ");
+            ", "cpp");
     }
 }

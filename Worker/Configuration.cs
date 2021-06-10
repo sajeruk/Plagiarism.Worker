@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,8 +26,10 @@ namespace Plagiarism.Worker
         [XmlIgnore]
         public const string DefaultConfigFileName = "config.xml";
 
-        [XmlArrayItem("Algorithm")]
-        public Algorithms.DllAlgorithm[] Algorithms;
+        [XmlArray("Algorithms")]
+        [XmlArrayItem("DllAlgorithm", typeof(Algorithms.DllAlgorithm))]
+        [XmlArrayItem("HttpAlgorithm", typeof(Algorithms.HttpAlgorithm))]
+        public Algorithms.BaseAlgorithm[] Algorithms;
         
         public static void Serialize(string workingDirectory, Configuration conf)
         {
@@ -36,6 +38,7 @@ namespace Plagiarism.Worker
             
             StreamWriter writer = File.CreateText(path);
             xs.Serialize(writer, conf);
+
             writer.Flush();
             writer.Close();            
         }
@@ -50,9 +53,10 @@ namespace Plagiarism.Worker
             config.ApiModeConfiguration = new ApiMode.CustomConfiguration();
             config.ApiModeConfiguration.Endpoint = "localhost:8000";
             config.ApiModeConfiguration.RequestTimeout = 30;
-            config.Algorithms = new [] {
+            config.Algorithms = new Algorithms.BaseAlgorithm[] {
                 new Algorithms.DllAlgorithm(1, "algo2", true, "AntiChitDLL2.dll"),
-                new Algorithms.DllAlgorithm(2, "algo3", true, "AntiChitDLL3.dll")
+                new Algorithms.DllAlgorithm(2, "algo3", true, "AntiChitDLL3.dll"),
+                new Algorithms.HttpAlgorithm(3, "newalgo", true, "127.0.0.1:7861")
             };
             return config;
         }

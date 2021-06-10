@@ -67,7 +67,7 @@ namespace Plagiarism.Worker.ApiMode
             return client;
         }
 
-        private Source LoadSource(string id)
+        private Source LoadSource(string id, string language)
         {
             Source result = Cache.Get(id);
             if (result == null)
@@ -75,7 +75,7 @@ namespace Plagiarism.Worker.ApiMode
                 byte[] content = Comm.DownloadFile(id);
                 if (content != null)
                 {
-                    result = new Source(content);
+                    result = new Source(content, language);
                     Cache.Add(id, result);
                 }
             }
@@ -84,7 +84,7 @@ namespace Plagiarism.Worker.ApiMode
 
         private bool RunTestMachine(Job job, ref string result)
         {
-            Source src1 = LoadSource(job.SolutionToJudge.SolutionHash);
+            Source src1 = LoadSource(job.SolutionToJudge.SolutionHash, job.SolutionToJudge.Language);
             if (src1 == null)
             {
                 return false;
@@ -96,7 +96,7 @@ namespace Plagiarism.Worker.ApiMode
             foreach (var soluition in job.SolutionsToCompare)
             {
                 Logger.Debug("Testing {0} and {1}", job.SolutionToJudge.SolutionId, soluition.SolutionId);
-                var src2 = LoadSource(soluition.SolutionHash);
+                var src2 = LoadSource(soluition.SolutionHash, soluition.Language);
                 if (src2 == null)
                 {
                     return false;
