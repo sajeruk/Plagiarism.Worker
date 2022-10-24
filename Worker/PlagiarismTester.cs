@@ -1,4 +1,4 @@
-﻿using Plagiarism.Worker.Algorithms;
+using Plagiarism.Worker.Algorithms;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,11 +24,19 @@ namespace Plagiarism.Worker
             int i = 0;
             foreach (var enabledAlgo in conf.Algorithms.Where(algo => algo.Enabled))
             {
-                Algos[i] = new DllAlgorithm(
-                    enabledAlgo.Id,
-                    enabledAlgo.Name,
-                    enabledAlgo.Enabled,
-                    Path.Combine(conf.DllDirectory, enabledAlgo.DllName));
+                if (enabledAlgo is DllAlgorithm)
+                {
+                    var algo = enabledAlgo as DllAlgorithm;
+                    Algos[i] = new DllAlgorithm(
+                        algo.Id,
+                        algo.Name,
+                        algo.Enabled,
+                        Path.Combine(conf.DllDirectory, algo.DllName));
+                }
+                else
+                {
+                    Algos[i] = enabledAlgo;
+                }
                 ++i;
             }
         }
